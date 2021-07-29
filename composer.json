@@ -1,0 +1,42 @@
+{
+    "name": "mgrunder/utilities",
+    "description": "Local utility functions I use all the time",
+    "keywords": [
+       "mgrunder",
+        "utilities"
+    ],
+    "homepage": "https://github.com/mgrunder/utilities",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Michael Grunder",
+            "email": "michael.grunder@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mgrunder\\Utilities\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mgrunder\\Utilities\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
