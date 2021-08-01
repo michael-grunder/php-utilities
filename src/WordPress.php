@@ -50,4 +50,18 @@ class WordPress {
             Utilities::panicException($ex);
         }
     }
+
+    public static function setOCPClientHttp($iv, $key, $cipher, $uri, $client) {
+        $uri = "http://$uri/update-ocp-client.php?payload=" .
+            Secure::encryptPayload("client=$client", $iv, $key, $cipher);
+        $resp = file_get_contents($uri);
+        if ( ! $resp)
+            Utilities::panicAbort("Can't hit endpoint '$uri'");
+        $dec = json_decode($resp, true);
+        if ( ! isset($dec['update']))
+            Utilities::panicAbort("Malformed reply '$resp'");
+
+        return $dec['update'];
+    }
+
 }
