@@ -36,13 +36,25 @@ class RedisUtils {
         return $res;
     }
 
-    public static function diffCommandCounts(array $c2, array $c1, $filter = true) {
+    public static function diffCommandCounts(array $pre, array $post, $sort = true) {
         $res = [];
 
-        foreach (array_keys($c1) as $k) {
-            $res[$k] = isset($c2[$k]) ? abs($c2[$k] - $c1[$k]) : 0;
+        foreach ($post as $cmd => $count) {
+            if (isset($pre[$cmd]))
+                $res[$cmd] = $count - $pre[$cmd];
+            else
+                $res[$cmd] = $count;
         }
 
-        return $filter ? array_filter($res) : $res;
+        if ($sort) {
+            uasort($res, function ($a, $b) {
+                if ($a == $b)
+                    return 0;
+                else
+                    return $b - $a;
+            });
+        }
+
+        return $res;
     }
 }

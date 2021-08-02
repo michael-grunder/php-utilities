@@ -22,7 +22,7 @@ class HttpBench {
     }
 
     public static function execWelle($uri, $requests, $concurrency, &$errors = 0) {
-        $cmd = "/home/mike/.cargo/bin/welle -n $requests -c $concurrency \"$uri\"";
+        $cmd = "/Users/michaelgrunder/.cargo/bin/welle -n $requests -c $concurrency \"$uri\"";
         exec($cmd, $output, $exitcode);
         if ( $exitcode != 0)
             throw new \Exception("non-zero exit code from command '$cmd'");
@@ -53,7 +53,20 @@ class HttpBench {
     }
 
     public static function execWrk($uri, $threads, $connections, $duration, &$errors) {
-        $cmd = "/home/mike/bin/wrk -t{$threads} -c{$connections} -d{$duration} \"$uri\"";
+        $cmd = "/Users/michaelgrunder/bin/wrk -t{$threads} -c{$connections} -d{$duration} \"$uri\"";
+        exec($cmd, $output, $exitcode);
+        if ( $exitcode != 0)
+            throw new \Exception("Non-zero exit code from command '$cmd'");
+
+        $result = self::ParseWrk(implode("\n", $output), $errors);
+        if ( ! $result)
+            throw new \Exception("Couldn't parse 'wrk' output from command '$cmd'");
+
+        return $result;
+    }
+
+    public static function execWrk2($uri, $rate, $duration) {
+        $cmd = "/Users/michaelgrunder/bin/wrk2 -d{$duration} --rate {$rate} \"$uri\"";
         exec($cmd, $output, $exitcode);
         if ( $exitcode != 0)
             throw new \Exception("Non-zero exit code from command '$cmd'");

@@ -51,8 +51,8 @@ class WordPress {
         }
     }
 
-    public static function setOCPClientHttp($iv, $key, $cipher, $uri, $client) {
-        $uri = "http://$uri/update-ocp-client.php?payload=" .
+    public static function setOCPClientHttp($iv, $key, $cipher, $host, $client) {
+        $uri = "http://$host/update-ocp-client.php?payload=" .
             Secure::encryptPayload("client=$client", $iv, $key, $cipher);
         $resp = file_get_contents($uri);
         if ( ! $resp)
