@@ -64,4 +64,22 @@ class WordPress {
         return $dec['update'];
     }
 
+    protected static function tryGetUri($uri, $timeout = 3, $retries = 1) {
+        $curl = curl_init();
+
+        do {
+            curl_setopt($curl, CURLOPT_URL, $uri);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $timeout);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        } while (curl_errno($curl) == 28 && $retries-- > 0);
+
+        return curl_exec($curl);
+    }
+
+    public static function setOCPCLientHttp2($host, $client) {
+        $n = rand();
+        $p = hash('sha256', "$n:$client");
+        $u = "http://$host/update-ocp-client.php?n=$n&payload=$p";
+        return self::tryGetUri($u);
+    }
 }
