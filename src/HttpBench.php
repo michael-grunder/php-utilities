@@ -105,8 +105,14 @@ class HttpBench {
         if ( ! preg_match($r6, $output, $m6) || count($m6) != 2)
             return false;
 
+        $rt = '/.*([0-9]+) requests in ([0-9.]+(us|ms|s))/';
+        if ( ! preg_match($rt, $output, $mt) || count($mt) != 4)
+            return false;
+
         $res['threads'] = $m1[1];
         $res['connections'] = $m1[2];
+        $res['requests'] = $mt[1];
+        $res['timing'] = Utilities::toMilliseconds($mt[2]);
         $res['total_req'] = $m6[1];
         $res['req_per_sec'] = $m2[1];
         $res['latency_avg'] = Utilities::toMilliseconds($m3[1]);

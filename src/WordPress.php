@@ -51,17 +51,27 @@ class WordPress {
         }
     }
 
-    public static function setOCPClientHttp($iv, $key, $cipher, $host, $client) {
-        $uri = "http://$host/update-ocp-client.php?payload=" .
-            Secure::encryptPayload("client=$client", $iv, $key, $cipher);
-        $resp = file_get_contents($uri);
-        if ( ! $resp)
-            Utilities::panicAbort("Can't hit endpoint '$uri'");
-        $dec = json_decode($resp, true);
-        if ( ! isset($dec['update']))
-            Utilities::panicAbort("Malformed reply '$resp'");
+    protected static function tryGetUri($uri, $timeout = 3, $retries = 1) {
+        $curl = curl_init();
 
-        return $dec['update'];
+        do {
+            curl_setopt($curl, CURLOPT_URL, $uri);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $timeout);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        } while (curl_errno($curl) == 28 && $retries-- > 0);
+
+        $resp = json_decode(curl_exec($curl), true);
+        if ( ! isset($resp['update'])) {
+            Utilities::panicAbort("Malformed reply '$resp'");
+        }
+
+        return $resp['update'];
     }
 
+    public static function setOCPCLientHttp($host, $client) {
+        $n = rand();
+        $p = hash('sha256', "$n:$client");
+        $u = "http://$host/update-ocp-client.php?n=$n&payload=$p";
+        return self::tryGetUri($u);
+    }
 }
