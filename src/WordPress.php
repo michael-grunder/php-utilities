@@ -23,7 +23,7 @@ class WordPress {
         }
     }
 
-    public static function setOCPClient($cfgfile, $client) {
+    public static function setOCPClient($cfgfile, $client, $prefetch = NULL) {
         $cfgfile_bak = $cfgfile . ".bak";
 
         if ( ! copy($cfgfile, $cfgfile_bak))
@@ -38,7 +38,11 @@ class WordPress {
         $regex = "s/'client'.*=>.*/'client' => '$client',/";
         Utilities::sedFileInPlace($cfgfile, $regex, true);
 
-        $prefetch = $client == 'phpredis' ? 'true' : 'false';
+        if ($prefetch === NULL)
+            $prefetch = $client == 'phpredis' ? 'true' : 'false';
+        else
+            $prefetch = $prefetch ? 'true' : 'false';
+
         $regex = "s/'prefetch'.*=>.*/'prefetch' => $prefetch,/";
         Utilities::sedFileInPlace($cfgfile, $regex, true);
     }
@@ -68,10 +72,14 @@ class WordPress {
         return $resp['update'];
     }
 
-    public static function setOCPCLientHttp($host, $client) {
+    public static function setOCPClientHttp($host, $client, $prefetch = NULL) {
         $n = rand();
         $p = hash('sha256', "$n:$client");
         $u = "http://$host/update-ocp-client.php?n=$n&payload=$p";
+
+        if ($prefetch == 'true' || $prefetch == 'false')
+            $u .= "&p=$prefetch";
+
         return self::tryGetUri($u);
     }
 }
