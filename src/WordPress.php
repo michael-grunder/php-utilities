@@ -24,10 +24,9 @@ class WordPress {
     }
 
     public static function setOCPClient($cfgfile, $client, $prefetch = NULL) {
-        $cfgfile_bak = $cfgfile . ".bak";
-
-        if ( ! copy($cfgfile, $cfgfile_bak))
-            throw new \Exception("Error:  Can't backup '$cfgfile' -> '$cfgfile_bak', aborting!");
+        //$cfgfile_bak = $cfgfile . ".bak";
+        //if ( ! copy($cfgfile, $cfgfile_bak))
+        //    throw new \Exception("Error:  Can't backup '$cfgfile' -> '$cfgfile_bak', aborting!");
 
         $client = strtolower($client);
         if ($client == 'redis')
@@ -44,6 +43,7 @@ class WordPress {
             $prefetch = $prefetch ? 'true' : 'false';
 
         $regex = "s/'prefetch'.*=>.*/'prefetch' => $prefetch,/";
+
         Utilities::sedFileInPlace($cfgfile, $regex, true);
     }
 
