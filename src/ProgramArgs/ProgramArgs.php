@@ -2,7 +2,6 @@
 
 namespace Mgrunder\Utilities;
 
-/* Simple argument parsing helpers that will work both via cli and fpm/cgi */
 class GetOpt {
     public static function get(array $opt, string $key, $default = null) {
         return $opt[$key] ?? $_GET[$key] ?? $_POST[$key] ?? $default;

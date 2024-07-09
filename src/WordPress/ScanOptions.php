@@ -9,7 +9,7 @@ class ScanOptions {
     private \PDO $conn;
     private ?\PDOStatement $stmt = null;
 
-    public static function get(string $host, string $user, string $password): self {
+    public static function get(string $host, string $user, ?string $password): self {
         $conn = new \PDO("mysql:host={$host}", $user, $password);
         $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         return new self($conn);
@@ -19,16 +19,20 @@ class ScanOptions {
         $this->conn = $conn;
     }
 
+    public function conn(): \PDO {
+        return $this->conn;
+    }
+
     private function hasOptionsFields(array $fields): bool {
         return in_array('option_id', $fields) &&
                in_array('option_name', $fields) &&
                in_array('option_value', $fields);
     }
 
-    public function scan(): array {
+    public function scan(?string $db = null) {
         $result = [];
 
-        $dbs = $this->getDatabases();
+        $dbs = $db ? [$db] : $this->getDatabases();
 
         foreach ($dbs as $db) {
             $tables = $this->getTables($db);
@@ -41,11 +45,9 @@ class ScanOptions {
                 if ( ! $this->hasOptionsFields($fields))
                     continue;
 
-                $result[] = ['db' => $db, 'table' => $table];
+                yield ['db' => $db, 'table' => $table];
             }
         }
-
-        return $result;
     }
 
     private function getDatabases(): array {
