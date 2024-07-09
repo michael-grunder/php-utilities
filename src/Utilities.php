@@ -96,4 +96,52 @@ class Utilities
             die("Unknown unit '$unit'\n");
         }
     }
+
+    function activeSleep(string $msg, float $time, float $tick = 0.1,
+                         ?callable $cb = null)
+    {
+        $spinner = ['|', '/', '-', '\\'];
+        $startTime = microtime(true);
+        $endTime = $startTime + $time;
+        $spinnerIndex = 0;
+        $maxlen = 0;
+
+        while (microtime(true) < $endTime) {
+            $curr = microtime(true);
+            $elapsed = $curr - $startTime;
+            $remaining = $endTime - $curr;
+            $remaining_sec = round($remaining, 1);
+            $elapsed_sec = round($elapsed, 1);
+
+            // Format the message
+            $formatted_msg = str_replace(
+                ['{total}', '{remaining}', '{elapsed}'],
+                [
+                    number_format($time, 1),
+                    number_format($remaining_sec, 1),
+                    number_format($elapsed_sec, 1)],
+                $msg
+            );
+
+            if ($cb) {
+                $res = $cb($formatted_msg);
+                $formatted_msg = str_replace('{cb}', $res, $formatted_msg);
+            }
+
+            echo "\r";
+
+            $msg = sprintf("%s %s", $spinner[$spinnerIndex], $formatted_msg);
+            $maxlen = max($maxlen, strlen($msg));
+
+            echo $msg;
+
+            flush();
+
+            usleep((int)($tick * 1000000));
+
+            $spinnerIndex = ($spinnerIndex + 1) % count($spinner);
+        }
+
+        printf("\r%{maxlen}s\n", "Done!");
+    }
 }
