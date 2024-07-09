@@ -1,6 +1,8 @@
 <?php
 
-namespace Mgrunder\Utilities;
+namespace Mgrunder\Utilities\Redis;
+
+use Mgrunder\Utilities\Utilities;
 
 class RedisUtils {
     public static function getRedisClient($class, $host, $port) {

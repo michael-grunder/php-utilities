@@ -5,7 +5,7 @@ namespace Mgrunder\Utilities\WordPress;
 /* A little helper class to scan multiple databases to try and find
    wordpress options tables.  This is simple enough because they will
    have the fields `option_id', `option_name', and `option_value'.*/
-class OptionsScan {
+class ScanOptions {
     private \PDO $conn;
     private ?\PDOStatement $stmt = null;
 
