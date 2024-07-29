@@ -4,8 +4,8 @@ namespace Mgrunder\Utilities\Redis;
 
 use Mgrunder\Utilities\Utilities;
 
-class RedisUtils {
-    public static function getRedisClient($class, $host, $port) {
+class Utils {
+    public static function getClient($class, $host, $port) {
         if ($class == 'relay')
             $class = '\Relay\Relay';
         if ( ! class_exists($class))

@@ -2,18 +2,24 @@
 
 namespace Mgrunder\Utilities;
 
-class Utilities
-{
+class Utilities {
+    /**
+     * @return never
+     */
     public static function panicAbort($msg, $prefix = NULL) {
         $msg = ($msg InstanceOf \Exception) ? $msg->getMessage() : $msg;
 
-        if ($prefix) {
-            $msg = "$prefix: $msg\n";
+        $prefix ??= 'Error';
+        $prefix .= ': ';
+
+        // If this is a tty colorize the prefix red */
+        if (defined('STDERR') && posix_isatty(STDERR)) {
+            $prefix = "\033[1;31m$prefix\033[0m";
+            fprintf(STDERR, $msg);
         } else {
-            $msg = "Error: $msg\n";
+            printf("%s: %s\n", $prefix, $msg);
         }
 
-        fprintf(STDERR, $msg);
         exit(-1);
     }
 
@@ -143,5 +149,15 @@ class Utilities
         }
 
         printf("\r%{maxlen}s\n", "Done!");
+    }
+
+    public static function bytesToSize(int $bytes, int $precision = 2): string {
+        $units = ['b', 'kb', 'mb', 'gb', 'tb', 'pb', 'eb', 'zb', 'yb'];
+        $index = min(floor(log($bytes, 1024)), count($units) - 1);
+
+        $size = $bytes / pow(1024, $index);
+        $unit = $units[$index];
+
+        return sprintf("%.{$precision}f%s", $size, $unit);
     }
 }

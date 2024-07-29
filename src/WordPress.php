@@ -24,10 +24,6 @@ class WordPress {
     }
 
     public static function setOCPClient($cfgfile, $client, $prefetch = NULL) {
-        //$cfgfile_bak = $cfgfile . ".bak";
-        //if ( ! copy($cfgfile, $cfgfile_bak))
-        //    throw new \Exception("Error:  Can't backup '$cfgfile' -> '$cfgfile_bak', aborting!");
-
         $client = strtolower($client);
         if ($client == 'redis')
             $client = 'phpredis';
