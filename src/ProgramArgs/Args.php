@@ -23,6 +23,11 @@ class Args {
 
     private array $opt;
 
+    /**
+     * @var array<string>
+     */
+    private array $remainder;
+
     private function buildGetOptString(): array {
         $short = '';
         $long  = [];
@@ -48,11 +53,12 @@ class Args {
 
         [$short, $long] = $this->buildGetOptString();
 
-        $this->opt = getopt($short, $long);
+        $this->opt = getopt($short, $long, $optind);
+
+        $this->remainder = array_slice($argv, $optind);
     }
 
     public function printUsage(string $program) {
-
         $usage = "Usage: $program";
         $short = '';
         $long = [];
@@ -174,5 +180,9 @@ class Args {
         foreach ($this->args as $name => $arg) {
             printf("%s: %s\n", $name, print_r($this->get($name), true));
         }
+    }
+
+    public function remainder(): array {
+        return $this->remainder;
     }
 }
