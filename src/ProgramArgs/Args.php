@@ -168,6 +168,14 @@ class Args {
         return (int)$val;
     }
 
+    public function getBool(string $name): bool {
+        $val = $this->get($name);
+
+        assert(is_scalar($val));
+
+        return boolval($val);
+    }
+
     public function getFloat(string $name): float {
         $val = $this->get($name);
 
