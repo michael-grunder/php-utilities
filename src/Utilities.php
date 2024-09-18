@@ -155,7 +155,7 @@ class Utilities {
         $units = ['b', 'kb', 'mb', 'gb', 'tb', 'pb', 'eb', 'zb', 'yb'];
         $index = min(floor(log($bytes, 1024)), count($units) - 1);
 
-        $size = $bytes / pow(1024, $index);
+        $size = $index > 0 ? $bytes / pow(1024, $index) : $bytes;
         $unit = $units[$index];
 
         return sprintf("%.{$precision}f%s", $size, $unit);
