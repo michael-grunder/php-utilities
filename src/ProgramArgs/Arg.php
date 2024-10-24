@@ -5,6 +5,7 @@ namespace Mgrunder\Utilities\ProgramArgs;
 class Arg {
     private    bool $required = true;
     private  string $name;
+    private   array $dynamic;
     private ?string $short = null;
     private ?string $long = null;
     private ?string $description = null;
@@ -17,8 +18,16 @@ class Arg {
 
     private $value;
 
-    public function __construct(string $name, string|array $keys) {
+    /**
+     * @param string $name
+     * @param string|string[] $keys
+     * @param DynamicArg|array<DynamicArg> $dynamic
+     */
+    public function __construct(string $name, string|array $keys,
+                                DynamicArg|array $dynamic = [])
+    {
         $this->name = $name;
+        $this->dynamic = is_array($dynamic) ? $dynamic : [$dynamic];
         $this->parseKeys($keys);
     }
 
@@ -130,6 +139,10 @@ class Arg {
         $value = $this->parse($this->getRaw($opt));
         if ($value === null && $this->required)
             throw new \Exception("Argument '{$this->name}' is required");
+
+        foreach ($this->dynamic as $dynamic) {
+            $value = $dynamic->parse($value);
+        }
 
         $this->validate($value);
 
