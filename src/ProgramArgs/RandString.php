@@ -23,6 +23,8 @@ class RandString extends RandRange {
             return '';
 
         $len = rand($min, $max);
+        if ($len == 0)
+            return $suffix;
 
         return substr(bin2hex(random_bytes($len)), 0, $len) . $suffix;
     }
