@@ -12,14 +12,15 @@ class RandFloat extends RandRange {
         if ($parts === null)
             return $value;
 
-        $min = (float)($parts[0] ?? ($this->min ?? PHP_FLOAT_MIN));
-        $max = (float)($parts[1] ?? ($this->max ?? PHP_FLOAT_MAX));
-        $pre = $parts[2];
+        $min       = (float)($parts[0] ?? ($this->min ?? PHP_FLOAT_MIN));
+        $max       = (float)($parts[1] ?? ($this->max ?? PHP_FLOAT_MAX));
+        $precision = $parts[2];
+        $suffix    = $parts[3] ?? '';
 
         $val = $min + lcg_value() * ($max - $min);
-        if ($pre !== null)
-            $val = round($val, (int)$pre);
+        if ($precision !== null)
+            $val = round($val, (int)$precision);
 
-        return $val;
+        return $val . $suffix;
     }
 }

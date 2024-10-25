@@ -12,9 +12,10 @@ class RandInt extends RandRange {
         if ($parts === null)
             return $value;
 
-        $min = (int)($parts[0] ?? ($this->min ?? PHP_INT_MIN));
-        $max = (int)($parts[1] ?? ($this->max ?? PHP_INT_MAX));
+        $min    = (int)($parts[0] ?? ($this->min ?? PHP_INT_MIN));
+        $max    = (int)($parts[1] ?? ($this->max ?? PHP_INT_MAX));
+        $suffix = $parts[3] ?? '';
 
-        return rand($min, $max);
+        return rand($min, $max) . $suffix;
     }
 }
