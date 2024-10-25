@@ -5,7 +5,7 @@ namespace Mgrunder\Utilities\ProgramArgs;
 class Arg {
     private    bool $required = true;
     private  string $name;
-    private   array $dynamic;
+    private   array $dynamic = [];
     private ?string $short = null;
     private ?string $long = null;
     private ?string $description = null;
@@ -21,13 +21,9 @@ class Arg {
     /**
      * @param string $name
      * @param string|string[] $keys
-     * @param DynamicArg|array<DynamicArg> $dynamic
      */
-    public function __construct(string $name, string|array $keys,
-                                DynamicArg|array $dynamic = [])
-    {
+    public function __construct(string $name, string|array $keys) {
         $this->name = $name;
-        $this->dynamic = is_array($dynamic) ? $dynamic : [$dynamic];
         $this->parseKeys($keys);
     }
 
@@ -83,6 +79,11 @@ class Arg {
 
     public function setDescription(string $description): self {
         $this->description = $description;
+        return $this;
+    }
+
+    public function addDynamicHandler(DynamicArg $dynamic): self {
+        $this->dynamic[] = $dynamic;
         return $this;
     }
 
