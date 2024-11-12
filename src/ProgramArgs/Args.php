@@ -2,8 +2,12 @@
 
 namespace Mgrunder\Utilities\ProgramArgs;
 
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 use Mgrunder\Utilities\ProgramArgs\Arg;
 use Mgrunder\Utilities\ProgramArgs\Flag;
+
+use Symfony\Component\Yaml\Yaml;
 
 class Args {
     /**
@@ -21,7 +25,19 @@ class Args {
      */
     private array $args;
 
+    /**
+     * @var array<mixed>
+     *
+     * Cli options parse via getopt
+     */
     private array $opt;
+
+    /**
+     * @var array<mixed>
+     *
+     * Options parsed via yaml file
+     */
+    private array $cfg = [];
 
     /**
      * @var array<string>
@@ -145,11 +161,23 @@ class Args {
         $this->execGetOpt();
     }
 
+    public function setConfigFile(string $file, array $paths = []) {
+        $paths[] = '.';
+
+        foreach ($paths as $path) {
+            if ( ! file_exists($path . '/' . $file))
+                continue;
+
+            $this->cfg = Yaml::parseFile($file);
+            return;
+        }
+    }
+
     public function get(string $name): mixed {
         if ( ! isset($this->args[$name]))
             throw new \Exception("Argument $name not found");
 
-        return $this->args[$name]->get($this->opt);
+        return $this->args[$name]->get($this->opt, $this->cfg);
     }
 
     public function getString(string $name): string {

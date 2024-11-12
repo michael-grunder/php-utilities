@@ -16,7 +16,13 @@ class Arg {
     private $validator = null;
     private $parser    = null;
 
+    private $category = 'app';
+
     private $value;
+
+    public function category(): string {
+        return $this->category;
+    }
 
     /**
      * @param string $name
@@ -59,6 +65,12 @@ class Arg {
         return ($this->required() ? '<' : '[') .
                implode($seperator, $bits)
                ($this->required() ? '>' : ']');
+    }
+
+    public function setCateogry(string $category): self {
+        assert($category != '');
+        $this->category = $category;
+        return $this;
     }
 
     public function name(): string {
@@ -136,10 +148,13 @@ class Arg {
         return true;
     }
 
-    protected function resolve(array $opt): mixed {
+    protected function resolve(array $opt, array $cfg): mixed {
         $value = $this->parse($this->getRaw($opt));
-        if ($value === null && $this->required)
-            throw new \Exception("Argument '{$this->name}' is required");
+        if ($value === null) {
+            $value = $cfg[$this->category][$this->name] ?? null;
+            if ($value === null && $this->required)
+                throw new \Exception("Argument '{$this->name}' is required");
+        }
 
         foreach ($this->dynamic as $dynamic) {
             $value = $dynamic->parse($value);
@@ -150,9 +165,9 @@ class Arg {
         return $value;
     }
 
-    public function get(array $opt): mixed {
+    public function get(array $opt, array $cfg): mixed {
         if ( ! $this->resolved) {
-            $this->value    = $this->resolve($opt);
+            $this->value    = $this->resolve($opt, $cfg);
             $this->resolved = true;
         }
 

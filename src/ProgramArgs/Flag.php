@@ -13,13 +13,13 @@ class Flag extends Arg {
         return false;
     }
 
-    public function get(array $opt): mixed {
+    public function get(array $opt, array $cfg): mixed {
         foreach (array_filter([$this->short(), $this->long()]) as $key) {
             if (isset($opt[$key]) || isset($_GET[$key]) || isset($_POST[$key])) {
                 return true;
             }
         }
 
-        return false;
+        return isset($cfg[$this->category()][$this->long()]);
     }
 }
