@@ -32,6 +32,8 @@ class Args {
      */
     private array $opt;
 
+    private ?string $cfg_file = null;
+
     /**
      * @var array<mixed>
      *
@@ -71,7 +73,10 @@ class Args {
 
         $this->opt = getopt($short, $long, $optind);
 
-        $this->remainder = array_slice($argv, $optind);
+        if ($argv !== null)
+            $this->remainder = array_slice($argv, $optind);
+        else
+            $this->remainder = [];
     }
 
     public function printUsage(string $program) {
@@ -161,15 +166,39 @@ class Args {
         $this->execGetOpt();
     }
 
-    public function setConfigFile(string $file, array $paths = []) {
-        $paths[] = '.';
+    private function loadConfigArg(string $long, string $short): ?string {
+        if (php_sapi_name() == 'cli') {
+            global $argv;
 
-        foreach ($paths as $path) {
-            if ( ! file_exists($path . '/' . $file))
+            $opt = getopt($short ? "{$short}:" : '', [$long ? "{$long}:" : '']);
+
+            return $opt[$long] ?? $opt[$short] ?? null;
+        } else if (isset($_GET[$long]) || isset($_GET[$short])) {
+            return $_GET[$long] ?? $_GET[$short] ?? null;
+        } else if (isset($_POST[$long]) || isset($_POST[$short])) {
+            return $_POST[$long] ?? $_POST[$short] ?? null;
+        }
+
+        return null;
+    }
+
+    public function configFileArg(string $long, ?string $short = null,
+                                  array $paths = []): void
+    {
+        if ( ! $long && ! $short)
+            throw new \Exception('At least one of long or short must be set');
+
+        $file = $this->loadConfigArg($long, $short ?? '');
+        if ( ! $file)
+            return;
+
+        foreach (array_merge(['.'], $paths) as $path) {
+            $full_path = "{$path}/{$file}";
+            if ( ! file_exists($full_path))
                 continue;
 
-            $this->cfg = Yaml::parseFile($file);
-            return;
+            $this->cfg = Yaml::parseFile($full_path);
+            $this->cfg_file = $full_path;
         }
     }
 

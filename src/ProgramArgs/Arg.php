@@ -12,6 +12,7 @@ class Arg {
     private   mixed $default = null;
 
     private $resolved = false;
+    private $is_default = false;
 
     private $validator = null;
     private $parser    = null;
@@ -118,7 +119,7 @@ class Arg {
         return $this;
     }
 
-    protected function getRaw(array $opt): mixed {
+    protected final function getRaw(array $opt): mixed {
         $check_keys = array_filter([$this->long, $this->short]);
         if ( ! $check_keys)
             throw new \Exception("No keys set for argument {$this->name}");
@@ -131,6 +132,8 @@ class Arg {
             else if (isset($_POST[$key]))
                 return $_POST[$key];
         }
+
+        $this->is_default = true;
 
         return $this->default;
     }
@@ -149,12 +152,24 @@ class Arg {
     }
 
     protected function resolve(array $opt, array $cfg): mixed {
-        $value = $this->parse($this->getRaw($opt));
-        if ($value === null) {
-            $value = $cfg[$this->category][$this->name] ?? null;
-            if ($value === null && $this->required)
-                throw new \Exception("Argument '{$this->name}' is required");
+        /* First try to get teh config-file value if any */
+        $cfg_key = str_replace('-', '_', $this->name);
+        $cfg_val = $cfg[$this->category][$cfg_key] ?? null;
+        if ($cfg_val !== null)
+            $cfg_val = $this->parse($cfg_val);
+
+        /* Read the command-line or _GET/_POST value */
+        $opt_val = $this->parse($this->getRaw($opt));
+
+        /* Either use the config value or the default value */
+        if ($this->is_default && $cfg_val !== null) {
+            $value = $cfg_val;
+        }  else {
+            $value = $opt_val;
         }
+
+        if ($value === null && $this->required)
+            throw new \Exception("Argument '{$this->name}' is required");
 
         foreach ($this->dynamic as $dynamic) {
             $value = $dynamic->parse($value);
@@ -167,7 +182,7 @@ class Arg {
 
     public function get(array $opt, array $cfg): mixed {
         if ( ! $this->resolved) {
-            $this->value    = $this->resolve($opt, $cfg);
+            $this->value = $this->resolve($opt, $cfg);
             $this->resolved = true;
         }
 
