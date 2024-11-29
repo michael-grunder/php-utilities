@@ -199,6 +199,21 @@ class Args {
 
             $this->cfg = Yaml::parseFile($full_path);
             $this->cfg_file = $full_path;
+
+            /* Let environment variables override special '{var}' values */
+            foreach ($this->cfg as $section => $values) {
+                foreach ($values as $name => $value) {
+                    if ( ! preg_match('/\{(.*)\}/', $value, $matches))
+                        continue;
+
+                    $var = $matches[1];
+                    $env = getenv($var);
+                    if ($env === false)
+                        continue;
+
+                    $this->cfg[$section][$name] = str_replace("{{$var}}", $env, $value);
+                }
+            }
         }
     }
 
