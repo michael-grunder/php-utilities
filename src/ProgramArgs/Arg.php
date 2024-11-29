@@ -190,7 +190,7 @@ class Arg {
     }
 
     protected function isIntOrIntString($v) {
-        return is_int($v) || is_string($v) && preg_match('/^\d+$/', $v);
+        return is_numeric($v) && intval($v) == $v;
     }
 
     protected function isFloatOrFloatString($v) {
